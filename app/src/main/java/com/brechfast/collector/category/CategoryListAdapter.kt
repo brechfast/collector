@@ -6,14 +6,17 @@ import android.graphics.Typeface
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupMenu
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.brechfast.collector.MenuListener
 import com.brechfast.collector.util.CollectorHelper
 import com.brechfast.collector.item.ItemListActivity
 import com.brechfast.collector.R
 
-class CategoryListAdapter(private val context: Context, private var categories: ArrayList<Category>) :
+class CategoryListAdapter(private val context: Context, private var categories: ArrayList<Category>,
+                          private val menuListener: MenuListener) :
     RecyclerView.Adapter<CategoryListAdapter.CategoryViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder =
@@ -29,6 +32,7 @@ class CategoryListAdapter(private val context: Context, private var categories: 
 
         if (category.description.isNotEmpty()) {
             holder.description.text = category.description
+            holder.description.setTypeface(null, Typeface.NORMAL)
         } else {
             holder.description.setText(R.string.no_description)
             holder.description.setTypeface(null, Typeface.ITALIC)
@@ -41,6 +45,20 @@ class CategoryListAdapter(private val context: Context, private var categories: 
             intent.putExtra(CollectorHelper.CATEGORY_ID_KEY, category.getId())
             intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
             context.startActivity(intent)
+        }
+
+        holder.background.setOnLongClickListener { view ->
+            PopupMenu(context, view).apply {
+                menuInflater.inflate(R.menu.category_options, menu)
+                setOnMenuItemClickListener {
+                    when (it.itemId) {
+                        R.id.editCategory -> menuListener.edit(category.getId())
+                        R.id.deleteCategory -> menuListener.delete(category.getId())
+                    }
+                    true
+                }
+            }.show()
+            true
         }
     }
 

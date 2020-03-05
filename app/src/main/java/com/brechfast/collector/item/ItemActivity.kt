@@ -5,8 +5,6 @@ import android.content.Intent
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.provider.MediaStore
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.RatingBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -99,26 +97,5 @@ class ItemActivity : AppCompatActivity() {
                 }
             }
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.item_menu, menu)
-
-        // Don't show the delete icon during item creation
-        if (itemId.isEmpty()) {
-            menu?.findItem(R.id.deleteItem)?.isVisible = false
-        }
-
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when (item?.itemId) {
-            R.id.deleteItem -> {
-                viewModel.deleteItem(categoryId, itemId)
-                launchItemListActivity()
-            }
-        }
-        return true
     }
 }

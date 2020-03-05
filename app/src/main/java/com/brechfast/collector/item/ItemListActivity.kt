@@ -1,11 +1,7 @@
 package com.brechfast.collector.item
 
-import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuItem
-import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -15,11 +11,11 @@ import com.brechfast.collector.CollectorViewModel
 import com.brechfast.collector.R
 import com.brechfast.collector.category.Category
 import com.brechfast.collector.category.CategoryActivity
+import com.brechfast.collector.MenuListener
 import com.brechfast.collector.util.CollectorHelper
-import com.brechfast.collector.category.CategoryDialog
 import kotlinx.android.synthetic.main.activity_items.*
 
-class ItemListActivity : AppCompatActivity() {
+class ItemListActivity : AppCompatActivity(), MenuListener {
 
     private lateinit var category: Category
     private lateinit var itemListAdapter: ItemListAdapter
@@ -36,16 +32,17 @@ class ItemListActivity : AppCompatActivity() {
         if (CollectorHelper.containsCategoryId(categoryId)) {
             items = CollectorHelper.getAllItemsInCategory(categoryId)
             category = CollectorHelper.getCategory(categoryId)
+            supportActionBar?.title = category.title
             setupListAdapter()
             setupViewModel()
-            setupViewVisibility()
+            setupAddButton()
         } else {
             launchCategoryActivity()
         }
     }
 
     private fun setupListAdapter() {
-        itemListAdapter = ItemListAdapter(this, CollectorHelper.getAllItemsInCategory(category.getId()))
+        itemListAdapter = ItemListAdapter(this, CollectorHelper.getAllItemsInCategory(category.getId()), this)
         itemList.apply {
             layoutManager = LinearLayoutManager(this@ItemListActivity)
             adapter = itemListAdapter
@@ -59,27 +56,10 @@ class ItemListActivity : AppCompatActivity() {
         })
     }
 
-    private fun setupViewVisibility() {
-        if (itemListAdapter.itemCount == 0) {
-            longClickText.setText(R.string.add_item_in_menu)
-        } else {
-            longClickText.setText(R.string.long_click_to_edit)
+    private fun setupAddButton() {
+        addItem.setOnClickListener {
+            addItem()
         }
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.items_menu, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
-        when (item?.itemId) {
-            android.R.id.home -> launchCategoryActivity()
-            R.id.addItem -> addItem()
-            R.id.editCategory -> editCategory()
-            R.id.deleteCategory -> deleteCategory()
-        }
-        return true
     }
 
     private fun launchCategoryActivity() {
@@ -95,22 +75,16 @@ class ItemListActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun editCategory() {
-        val dialogView = layoutInflater.inflate(R.layout.category_layout, null)
-        val title: EditText = dialogView.findViewById(R.id.createCategoryTitle)
-        val description: EditText = dialogView.findViewById(R.id.createCategoryDescription)
-
-        title.append(category.title)
-        description.append(category.description)
-
-        CategoryDialog(this,
-            DialogInterface.OnClickListener {_, _ ->
-                viewModel.updateCategory(category.getId(), title.text.toString(), description.text.toString())
-            }, dialogView).create()
+    override fun edit(id: String) {
+        val intent = Intent(this, ItemActivity::class.java)
+        intent.putExtra(CollectorHelper.CATEGORY_ID_KEY, category.getId())
+        intent.putExtra(CollectorHelper.ITEM_ID_KEY, id)
+        intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP
+        finish()
+        startActivity(intent)
     }
 
-    private fun deleteCategory() {
-        viewModel.deleteCategory(category.getId())
-        launchCategoryActivity()
+    override fun delete(id: String) {
+        viewModel.deleteItem(category.getId(), id)
     }
 }

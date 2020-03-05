@@ -10,10 +10,11 @@ import androidx.lifecycle.ViewModelStore
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.brechfast.collector.util.CollectorHelper
 import com.brechfast.collector.CollectorViewModel
+import com.brechfast.collector.MenuListener
 import com.brechfast.collector.R
 import kotlinx.android.synthetic.main.activity_category.*
 
-class CategoryActivity : AppCompatActivity() {
+class CategoryActivity : AppCompatActivity(), MenuListener {
 
     private lateinit var categoryListAdapter: CategoryListAdapter
 
@@ -28,12 +29,12 @@ class CategoryActivity : AppCompatActivity() {
         setupViewModel()
 
         addCategory.setOnClickListener {
-            createCategory()
+            createOrUpdateCategory("")
         }
     }
 
     private fun setupListAdapter() {
-        categoryListAdapter = CategoryListAdapter(this, categories)
+        categoryListAdapter = CategoryListAdapter(this, categories, this)
         categoryList.apply {
             layoutManager = LinearLayoutManager(this@CategoryActivity)
             adapter = categoryListAdapter
@@ -47,14 +48,33 @@ class CategoryActivity : AppCompatActivity() {
         })
     }
 
-    private fun createCategory() {
+    private fun createOrUpdateCategory(categoryId: String) {
         val dialogView = layoutInflater.inflate(R.layout.category_layout, null)
         val title: EditText = dialogView.findViewById(R.id.createCategoryTitle)
         val description: EditText = dialogView.findViewById(R.id.createCategoryDescription)
 
-        CategoryDialog(this,
+        val listener = if (categoryId.isEmpty()) {
             DialogInterface.OnClickListener { _, _ ->
                 viewModel.createCategory(title.text.toString(), description.text.toString())
-            }, dialogView).create()
+            }
+        } else {
+            val category = CollectorHelper.getCategory(categoryId)
+            title.append(category.title)
+            description.append(category.description)
+
+            DialogInterface.OnClickListener { _, _ ->
+                viewModel.updateCategory(category.getId(), title.text.toString(), description.text.toString())
+            }
+        }
+
+        CategoryDialog(this, listener, dialogView).create()
+    }
+
+    override fun edit(id: String) {
+        createOrUpdateCategory(id)
+    }
+
+    override fun delete(id: String) {
+        viewModel.deleteCategory(id)
     }
 }

@@ -8,8 +8,10 @@
     <string name="category_title">Category Title</string>
     <string name="create_new_category">Create New Category</string>
     <string name="edit_category">Edit Category</string>
+    <string name="edit_item">Edit Item</string>
     <string name="edit_image_text">Click image to edit</string>
     <string name="delete_category">Delete Category</string>
+    <string name="delete_item">Delete Item</string>
     <string name="description">Description:</string>
     <string name="description_optional">Description (optional)</string>
     <string name="long_click_to_edit">Long click to edit item</string>
