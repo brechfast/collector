@@ -126,6 +126,7 @@ class TestCollectorViewModel {
         val newItem = viewModel.observableCategoryItems.value?.get(0)
 
         assertEquals(oldItem?.getId(), newItem?.getId())
+        assertEquals(oldItem?.categoryId, newItem?.categoryId)
         assertNotEquals(oldName, newItem?.name)
         assertNotEquals(oldDescription, newItem?.description)
         assertNotEquals(oldRating, newItem?.rating)

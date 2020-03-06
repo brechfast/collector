@@ -17,11 +17,6 @@ data class Category(
 
     fun getItems(): HashMap<String, Item> = items
 
-    fun update(title: String, description: String) {
-        this.title = title
-        this.description = description
-    }
-
     fun createOrUpdateItem(item: Item) {
         items[item.getId()] = item
     }

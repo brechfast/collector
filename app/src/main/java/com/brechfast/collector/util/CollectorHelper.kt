@@ -28,7 +28,10 @@ class CollectorHelper {
         }
 
         fun updateCategory(categoryId: String, title: String, description: String) {
-            categoryMap[categoryId]?.update(title, description)
+            categoryMap[categoryId]?.apply {
+                this.title = title
+                this.description = description
+            }
         }
 
         fun deleteCategory(categoryId: String) {
